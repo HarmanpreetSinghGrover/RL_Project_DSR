@@ -23,21 +23,3 @@ def get_screen(env, device, h=80, w=80):
 	k = k.to(device)
 	return k
 
-def evaluate(no_seeds=10):
-	"""Function to evaluate trained models using greedy actions.
-	"""
-	r_vec = []
-	for i in range(no_seeds):
-		env_test.seed(i)
-		env_test.reset()
-		Rt = 0
-		for timesteps in count():
-			# choose greedy action
-			action = select_action(tnet(get_screen(env_test)), wnet.head.weight.data.view(-1,1), greedy=True)
-			_, R, done, _ = env_test.step(action.item())
-			Rt = R + Rt
-			if(done):
-				r_vec.append(R)
-				break
-				
-	return np.mean(r_vec), np.std(r_vec) 

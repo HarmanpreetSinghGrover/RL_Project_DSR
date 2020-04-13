@@ -271,5 +271,29 @@ def visualize_results():
 
 visualize_results()
 
-a, b = evaluate(10)
-print('Completely solved (out of 10): ', a)
+env_test = gym.make(ENV_NAME)
+def evaluate(no_seeds=10):
+    """Function to evaluate trained models using greedy actions.
+    """
+    r_vec = []
+    wins = 0
+    for i in range(no_seeds):
+        env_test.seed(i)
+        env_test.reset()
+        Rt = 0
+        for timesteps in count():
+            # choose greedy action
+            action = select_action(tnet(get_screen(env_test)), wnet.head.weight.data.view(-1,1), greedy=True)
+            _, R, done, _ = env_test.step(action.item())
+            Rt = R + Rt
+            if(done):
+                r_vec.append(R)
+                if R != 0:
+                    wins = wins + 1
+                    env_test.render()
+                break
+                
+    return wins, np.mean(r_vec), np.std(r_vec) 
+
+wins, a, b = evaluate(10)
+print('Completely solved (out of 10): ', wins)
